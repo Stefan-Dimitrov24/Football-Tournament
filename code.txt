@@ -1,0 +1,491 @@
+#include <iostream>
+#include <iomanip>
+#include <string>
+#include<conio.h>
+#include <random>
+#include <cstdlib>
+#include <ctime>
+#include <fstream>
+#include <time.h>
+using namespace std;
+const int N = 5;
+int counter = 0;
+struct otbor
+{
+	char ime[20];
+	int godina;
+};
+otbor enter()
+{
+	cin.ignore();
+	otbor o;
+	char input_ime[20];
+	char input_godina[20];
+	cout << "1.Vuvedete ime: ";
+	cin.getline(o.ime, 20, '\n');
+	cout << "2.Vuvedete godina na suzdavane: ";
+	cin >> o.godina;
+	cout << endl << "Uspeshno dobavihte otbora!";
+	cout << endl << "Ime: " << o.ime;
+	cout << endl << "Godina na suzdavane: " << o.godina;
+	return o;
+};
+struct match
+{
+	int home;
+	int away;
+};
+void otbor_input(otbor o[], int counter, int nomer_list);
+void otbor_output(otbor o[]);
+void turnir(match m[N][N], otbor o[], int counter);
+void tursene_s_ime(match m[N][N], otbor o[], int counter);
+void izpisvane_na_match(match m[N][N], otbor o[], int k, int i);
+void tursene_po_dve_imena(match m[N][N], otbor o[], int counter);
+void Spravki_podmenu(otbor o[], int counter, match m[N][N]);
+void Sortirane_Godina(otbor o[], int counter);
+void Sortirane_Tochki(otbor o[], int counter, match m[N][N]);
+void Izvejdane_Max_Popadeniq(otbor o[], match m[N][N], int counter);
+void Izvejdane_Max_Razlika(otbor o[], match m[N][N], int counter);
+void Izkopirane_Otbori(otbor o[], int counter, otbor o1[]);
+void Save(otbor o[],match m[N][N], int counter);
+int main()
+{
+	otbor o[N];
+	int nomer_list = 0;
+	char a = 'y';
+	int izbor;
+	match m[N][N];
+	do {
+		system("cls");
+		cout << "Futbolen Turnir: Menu";
+		cout << endl << "1.Dobavqne na edin otbor";
+		cout << endl << "2.Dobavqne na list ot otbori";
+		cout << endl << "3.Izvejdane na otborite";
+		cout << endl << "4.Purvenstvo";
+		cout << endl << "5.Tursene na izigrani machove na edin otbor";
+		cout << endl << "6.Tursene na izigrani machove mejdu dva otbora";
+		cout << endl << "7.Spravki za uchastnici";
+		cout << endl << "8.Zapazvane na dannite";
+		cout << endl << "9.Izlizane ot programata";
+		cout << endl << "Vuvedete izbor: ";
+		cin >> izbor;
+		while (izbor < 0 || izbor > 9) {
+			cout << "Molq vuvedete chislo ot 1 do 9!: ";
+			cin >> izbor;
+		}
+		switch (izbor)
+		{
+		case 1:
+			if (counter != N)
+			{
+				while (counter < N && (a == 'Y' || a == 'y')) {
+					o[counter] = enter();
+					counter++;
+					cout << endl << "Iskate li da produljite da vuvejdate?(Y/N): ";
+					do {
+						cin >> a;
+					} while ((a != 'N' && a != 'n') && (a != 'Y' && a != 'y'));
+					if (counter == N)
+					{
+						cout << "Dostignahte maximalniq broi otbori" << endl;
+						system("pause");
+					}
+				}
+			}
+			else cout << "Dostignahte maximalniq broi otbori" << endl;
+			a = 'y';
+			system("pause");
+			break;
+		case 2:
+			if (counter == N || nomer_list == N)
+			{
+				cout << "Dostignahte maximalniq broi otbori" << endl;
+				system("pause");
+			}
+			else {
+				cout << endl << "Kolko otbora iskate da vuvedete: ";
+				cin >> nomer_list;
+				while (counter + nomer_list > N)
+				{
+					cout << "Molq vuvedete maximum 5 otbora: ";
+					cin >> nomer_list;
+				}
+				otbor_input(o, counter, nomer_list);
+				counter = counter + nomer_list;
+			}
+
+			break;
+		case 3:
+			otbor_output(o);
+			system("pause");
+			break;
+		case 4:
+			if (counter < 3)
+			{
+				cout << "Molq purvo vuvedete pone 3 otbora" << endl;
+			}
+			else
+			{
+				turnir(m, o, counter);
+			}
+			system("pause");
+			break;
+		case 5:
+			tursene_s_ime(m, o, counter);
+			system("pause");
+			break;
+		case 6:
+			tursene_po_dve_imena(m, o, counter);
+			system("pause");
+			break;
+		case 7:
+			Spravki_podmenu(o, counter, m);
+			system("pause");
+			break;
+		case 8:
+			Save(o, m, counter);
+			break;
+		}
+
+	} while (izbor != 9);
+	return 0;
+}
+
+void otbor_input(otbor o[], int counter, int nomer_list)
+{
+	do
+	{
+		cout << "Ime : ";
+		cin >> o[counter].ime;
+		cout << "Godina  : ";
+		cin >> o[counter].godina;
+		nomer_list--;
+		counter++;
+
+	} while (nomer_list != 0);
+}
+void otbor_output(otbor o[])
+{
+	cout << "List s vsichki otbori" << endl;
+	for (int i = 0; i < counter; i++)
+	{
+		cout << "Otbor: " << o[i].ime << endl;
+		cout << "Suzdaden prez:" << o[i].godina << endl << endl;
+	}
+}
+void turnir(match m[N][N], otbor o[], int counter)
+{
+	srand(time(NULL));
+	for (int k = 0; k < counter; k++)
+	{
+		for (int i = 0; i < counter; i++)
+		{
+			if (i != k)
+			{
+				m[k][i].home = rand() % 10 + 1;
+				m[k][i].away = rand() % 10 + 1;
+				izpisvane_na_match(m, o, k, i);
+			}
+			else
+			{
+				continue;
+			}
+		}
+	}
+}
+void tursene_s_ime(match m[N][N], otbor o[], int counter)
+{
+	int otbor_index = -1;
+	char ime[20];
+	cout << "Molq vuvedete ime na otbor: ";
+	cin >> ime;
+	for (int i = 0; i < counter; i++)
+	{
+		if (!strcmp(ime, o[i].ime))
+		{
+			otbor_index = i;
+		}
+	}
+	if (otbor_index != -1)
+	{
+		for (int i = 0; i < counter; i++)
+			if (otbor_index != i)
+			{
+				izpisvane_na_match(m, o, otbor_index, i);
+				izpisvane_na_match(m, o, i, otbor_index);
+				cout << endl;
+			}
+	}
+	else
+	{
+		cout << "Tozi otbor ne sushtestvuva molq probvaite otnovo! ";
+	}
+}
+void izpisvane_na_match(match m[N][N], otbor o[], int k, int i)
+{
+	if (k != i)
+	{
+		cout << "Rezultata ot macha e: " << o[k].ime << " " << m[k][i].home << " - " << m[k][i].away << " " << o[i].ime << endl;
+	}
+}
+void tursene_po_dve_imena(match m[N][N], otbor o[], int counter)
+{
+	int otbor_index1 = -1;
+	int otbor_index2 = -1;
+	char ime1[20];
+	char ime2[20];
+	cout << "Vuvedete imeto na purviq otbor: ";
+	cin >> ime1;
+	cout << endl << "Vuvedete imeto na vtoriq otbor: ";
+	cin >> ime2;
+	for (int i = 0; i < counter; i++)
+	{
+		if (!strcmp(ime1, o[i].ime))
+		{
+			otbor_index1 = i;
+		}
+		if (!strcmp(ime2, o[i].ime))
+		{
+			otbor_index2 = i;
+		}
+	}
+	if (otbor_index1 == -1 || otbor_index2 == -1)
+	{
+		cout << "Pone edin ot dvata otbora ne sushtestvua probvaite otnovo!";
+	}
+	else
+	{
+		izpisvane_na_match(m, o, otbor_index1, otbor_index2);
+		izpisvane_na_match(m, o, otbor_index2, otbor_index1);
+	}
+}
+void Spravki_podmenu(otbor o[], int counter, match m[N][N])
+{
+	int podmenu_izbor;
+	do{
+		system("cls");
+		cout << endl << "1.Izvejdane na otborite po godina na suzdavane";
+		cout << endl << "2.Izvejdane na otborite po specheleni tochki";
+		cout << endl << "3.Izvejdane na otbora s nai-mnogo popadeniq";
+		cout << endl << "4.Izvejdane na otbora s nai-dobra golova razlika";
+		cout << endl << "5.Vrushtane v menuto";
+		cout << endl << "Vuvedete izbor: ";
+		cin >> podmenu_izbor;
+		while (podmenu_izbor < 0 || podmenu_izbor > 5)
+		{
+			cout << "Vuvedete chislo ot 1 do 5!: ";
+			cin >> podmenu_izbor;
+		}
+		switch (podmenu_izbor)
+		{
+		case 1:
+			Sortirane_Godina(o, counter);
+			system("pause");
+			break;
+		case 2:
+			Sortirane_Tochki(o, counter, m);
+			system("pause");
+			break;
+		case 3:
+			Izvejdane_Max_Popadeniq(o, m, counter);
+			system("pause");
+			break;
+		case 4:
+			Izvejdane_Max_Razlika(o, m, counter);
+			system("pause");
+			break;
+		}
+	} while (podmenu_izbor != 5);
+}
+void Izkopirane_Otbori(otbor o[], int counter, otbor o1[])
+{
+	for (int i = 0; i < counter; i++)
+	{
+		o1[i] = o[i];
+	}
+}
+void Sortirane_Godina(otbor o[], int counter)
+{
+	otbor buff;
+	otbor o1[N];
+	Izkopirane_Otbori(o, counter, o1);
+	cout << "List na vsichki otbori podredeni po godina na suzdavane" << endl;
+
+	for (int k = counter; k > 1; k--)
+	{
+		for (int i = 0; i < k - 1; i++)
+			if (o1[i].godina < o1[i + 1].godina)
+			{
+				buff = o1[i];
+				o1[i] = o1[i + 1];
+				o1[i + 1] = buff;
+			}
+	}
+	for (int i = 0; i < counter; i++)
+		cout << endl <<"Otbor:"<< o1[i].ime << endl<<"Suzdaden prez:" << o1[i].godina << endl;
+}
+void Sortirane_Tochki(otbor o[], int counter, match m[N][N])
+{
+	int tochki[N];
+	int buffer;
+	for (int i = 0; i < counter; i++)
+	{
+		tochki[i] = 0;
+	}
+	otbor buff;
+	otbor o1[N];
+	Izkopirane_Otbori(o, counter, o1);
+	cout << "List na vsichki otbori podredeni po tochki" << endl;
+	for (int i = 0; i < counter; i++)
+	{
+		o1[i] = o[i];
+	}
+	for (int k = 0; k < counter; k++)
+	{
+		for (int i = 0; i < counter; i++)
+		{
+			if (i != k)
+			{
+				if (m[k][i].home == m[k][i].away)
+				{
+					tochki[k] = tochki[k] + 1;
+					tochki[i] = tochki[i] + 1;
+				}
+				if (m[k][i].home > m[k][i].away)
+				{
+					tochki[k] = tochki[k] + 3;
+				}
+				if (m[k][i].home < m[k][i].away)
+				{
+					tochki[i] = tochki[i] + 3;
+				}
+
+			}
+		}
+	}
+
+	for (int k = counter; k > 1; k--)
+	{
+		for (int i = 0; i < k - 1; i++)
+			if (tochki[i] < tochki[i + 1])
+			{
+				buff = o1[i];
+				o1[i] = o1[i + 1];
+				o1[i + 1] = buff;
+				buffer = tochki[i];
+				tochki[i] = tochki[i + 1];
+				tochki[i + 1] = buffer;
+			}
+	}
+	for (int i = 0; i < counter; i++)
+		cout << endl << "Otbor: " << o1[i].ime << endl << "Sus: " << tochki[i] << " tochki" << endl;
+}
+
+void Izvejdane_Max_Popadeniq(otbor o[], match m[N][N], int counter)
+{
+	int golove[N];
+	int buffer;
+	for (int i = 0; i < counter; i++)
+	{
+		golove[i] = 0;
+	}
+	otbor o1[N];
+	Izkopirane_Otbori(o, counter, o1);
+	otbor buff;
+	//Sabira popadeniqta na vseki otbor
+	for (int k = 0; k < counter; k++)
+	{
+		for (int i = 0; i < counter; i++)
+		{
+			if (i != k)
+			{
+				golove[k] = golove[k] + m[k][i].home;
+				golove[i] = golove[i] + m[k][i].away;
+			}
+		}
+
+	}
+	for (int k = counter; k > 1; k--)
+	{
+		for (int i = 0; i < counter; i++)
+		{
+			if (golove[i] < golove[i + 1])
+			{
+				buffer = golove[i];
+				golove[i] = golove[i + 1];
+				golove[i + 1] = buffer;
+				buff = o1[i];
+				o1[i] = o1[i + 1];
+				o1[i + 1] = buff;
+			}
+		}
+	}
+	cout <<"Otbora s: "<<golove[0]<<" Vkarani popadeniq e: "<<o1[0].ime<<endl;
+}
+void Izvejdane_Max_Razlika(otbor o[], match m[N][N], int counter)
+{
+	int razlika[N];
+	int buffer;
+for (int i = 0; i < counter; i++)
+	{
+		razlika[i] = 0;
+	}
+	otbor o1[N];
+	Izkopirane_Otbori(o, counter, o1);
+	otbor buff;
+	for (int k = 0; k < counter; k++)
+	{
+		for (int i = 0; i < counter; i++)
+		{
+			if (i != k)
+			{
+				razlika[k] = razlika[k] + (m[k][i].home - m[k][i].away);
+				razlika[i] = razlika[i] - (m[k][i].home - m[k][i].away);
+			}
+		}
+	}
+	for (int k = counter; k > 1; k--)
+	{
+		for (int i = 0; i < counter; i++)
+		{
+			if (razlika[i] < razlika[i + 1])
+			{
+				buffer = razlika[i];
+				razlika[i] = razlika[i + 1];
+				razlika[i + 1] = buffer;
+				buff = o1[i];
+				o1[i] = o1[i + 1];
+				o1[i + 1] = buff;
+			}
+		}
+	}
+	cout << "Nai-dobra golova razlika:  " << razlika[0] << " ima otbora: " << o1[0].ime<<endl;
+}
+void Save(otbor o[], match m[N][N], int counter)
+{
+	fstream save;
+	save.open("zapazvane.dat", ios::binary | ios::out | ios::trunc);
+	int k = 0;
+	int i = 0;
+	if (save.fail())
+	{
+		cout << "Faila ne moje da se otvori" << endl;
+		system("pause");
+	}
+	for (int i = 0; i < counter; i++)
+	{
+		save << "Imena i godini na otborite: "<<endl << o[i].ime << endl << o[i].godina<<endl;
+	}
+	save <<endl<< "Matchove ot turnira:"<<endl;
+	for (int k = 0; k < counter; k++)
+	{
+		for (int i = 0; i < counter; i++)
+		{
+			if (k != i)
+			{
+				save << "Rezultata ot macha e: " << o[k].ime << " " << m[k][i].home << " - " << m[k][i].away << " " << o[i].ime << endl;
+			}
+		}
+	}
+	save.close();
+}
